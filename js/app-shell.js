@@ -188,7 +188,11 @@
           params: {},
           ...NATIVE_OPTS,
         });
-        return new Response(res.data, {
+        // CapacitorHttp 对 application/json 响应会自动解析成对象，
+        // Response 构造器会把对象转成 "[object Object]" 导致 res.json() 失败，
+        // 必须还原为 JSON 字符串
+        const body = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
+        return new Response(body, {
           status: res.status,
           statusText: '',
           headers: res.headers || {},
@@ -253,6 +257,8 @@
         .then((res) => {
           if (self.__aborted) return;
           let data = res.data;
+          // 同 fetch：JSON 响应可能被原生层解析成对象，还原为字符串
+          if (typeof data !== 'string') data = JSON.stringify(data);
           if (wantAb) {
             data = base64ToArrayBuffer(typeof data === 'string' ? data : '');
             Object.defineProperty(self, 'response', { value: data, configurable: true });

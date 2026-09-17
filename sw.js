@@ -4,7 +4,7 @@
  *       /proxy 与 /poster 为动态接口，始终走网络，不缓存
  */
 
-const CACHE_VERSION = 'yxg-static-v5';
+const CACHE_VERSION = 'yxg-static-v6';
 
 const CORE_ASSETS = [
   './',
