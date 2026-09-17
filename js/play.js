@@ -65,6 +65,23 @@ const Play = {
         for (let i = 0; i < keys.length - 100; i++) delete all[keys[i]];
       }
       localStorage.setItem(this.state.playHistory, JSON.stringify(all));
+
+      // 同步到观看历史列表（首页展示，可续播）
+      if (window.WatchHistory && this.state.detail) {
+        const src = this.state.sources[this.state.srcIdx];
+        const ep = src ? src.episodes[this.state.epIdx] : null;
+        const curSource = Config.getCurrentSource();
+        WatchHistory.add({
+          id: this.state.id,
+          name: this.state.detail.vod_name,
+          pic: this.state.detail.vod_pic || '',
+          srcIdx: this.state.srcIdx,
+          epIdx: this.state.epIdx,
+          epName: ep ? ep.name : '',
+          sourceId: curSource ? curSource.id : '',
+          sourceName: curSource ? curSource.name : '',
+        });
+      }
     } catch (e) {}
   },
 

@@ -52,6 +52,8 @@ const Home = {
 
   async init() {
     this.bindEvents();
+    // 渲染观看历史
+    if (window.WatchHistory) WatchHistory.renderHome();
     this.checkSourceAndLoad();
   },
 
@@ -109,8 +111,17 @@ const Home = {
     this.state.loadedIds.clear();
     const input = document.getElementById('searchInput');
     if (input) input.value = '';
-    history.replaceState(null, '', '/');
+    // 部分 WebView（file:// 等）下 replaceState 会抛安全异常，不能阻断后续刷新
+    try {
+      history.replaceState(null, '', location.pathname);
+    } catch (e) {}
     this.checkSourceAndLoad();
+  },
+
+  // 重试：同时重新加载分类和列表（分类首次失败后不能一直缺失）
+  retryAll() {
+    this.loadCategories();
+    this.loadList();
   },
 
   // 加载分类
@@ -246,6 +257,8 @@ const Home = {
         this.renderList(list);
         this.renderPagination();
         this.loadPosters(list);
+        // 分类曾加载失败（如刚启动网络不通），列表恢复后自动补拉一次
+        if (this.state.categories.length === 0) this.loadCategories();
         return;
       }
 
@@ -274,6 +287,8 @@ const Home = {
       this.renderPagination();
       // 异步加载海报
       this.loadPosters(list);
+      // 分类曾加载失败（如刚启动网络不通），列表恢复后自动补拉一次
+      if (this.state.categories.length === 0) this.loadCategories();
     } catch (e) {
       console.error('加载失败', e);
       listEl.innerHTML = '';

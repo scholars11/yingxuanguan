@@ -26,6 +26,7 @@
     '.category-chip',
     '.episode-item',
     '.source-item',
+    '.history-card',
     '.modal-box .btn',
   ].join(',');
 
@@ -131,7 +132,8 @@
       if (tag === 'A' || tag === 'BUTTON' || tag === 'INPUT') return;
       if (el.classList.contains('video-card') ||
           el.classList.contains('category-chip') ||
-          el.classList.contains('episode-item')) {
+          el.classList.contains('episode-item') ||
+          el.classList.contains('history-card')) {
         e.preventDefault();
         el.click();
       }
@@ -150,15 +152,33 @@
   /* ---------- 3. 安卓 App 原生 HTTP 绕过 CORS ---------- */
   // 安卓 Capacitor WebView 受 CORS 限制，但原生 HTTP 插件没有
   // 这里 monkey-patch fetch 和 XMLHttpRequest 让所有请求（含 hls.js 的 m3u8）都走原生层
+  // 注意：Capacitor 5+ 内置插件名为 CapacitorHttp（旧版社区插件为 Http）
+  function getHttpPlugin() {
+    const C = window.Capacitor;
+    return (C && C.Plugins && (C.Plugins.CapacitorHttp || C.Plugins.Http)) ||
+           window.CapacitorHttp || null;
+  }
+
+  function base64ToArrayBuffer(b64) {
+    const bin = atob(b64);
+    const len = bin.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes.buffer;
+  }
+
   function setupAndroidNativeHttp() {
-    const HttpPlugin = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Http;
-    if (!HttpPlugin) return false;
+    const HttpPlugin = getHttpPlugin();
+    if (!HttpPlugin || typeof HttpPlugin.get !== 'function') return false;
+
+    const NATIVE_OPTS = { connectTimeout: 15000, readTimeout: 30000 };
 
     // --- Patch fetch ---
     const _origFetch = window.fetch.bind(window);
     window.fetch = async function (input, init = {}) {
       const url = typeof input === 'string' ? input : input.url;
-      if (!url || url.startsWith('data:') || url.startsWith('blob:')) {
+      // 仅接管绝对 http(s) 地址；data:/blob:/相对路径交还原生 fetch
+      if (!url || !/^https?:\/\//.test(url)) {
         return _origFetch(input, init);
       }
       try {
@@ -166,6 +186,7 @@
           url: url,
           headers: init.headers || {},
           params: {},
+          ...NATIVE_OPTS,
         });
         return new Response(res.data, {
           status: res.status,
@@ -184,6 +205,7 @@
 
     XMLHttpRequest.prototype.open = function (method, url, ...rest) {
       this.__nativeUrl = url;
+      this.__nativeMethod = String(method || 'GET').toUpperCase();
       this.__nativeHeaders = {};
       return _origXHROpen.call(this, method, url, ...rest);
     };
@@ -196,25 +218,47 @@
 
     XMLHttpRequest.prototype.send = function () {
       const url = this.__nativeUrl;
-      if (!url || url.startsWith('data:') || url.startsWith('blob:')) {
+      // 仅接管 http(s) 的 GET 请求，其余（相对路径/非GET/data:）走原生 XHR
+      const ok = url && /^https?:\/\//.test(url) && this.__nativeMethod === 'GET' &&
+                 this.readyState > 0;
+      if (!ok) {
         return _origXHRSend.apply(this, arguments);
       }
       const headers = this.__nativeHeaders || {};
       const self = this;
-      HttpPlugin.get({ url, headers, params: {} })
+      const wantAb = this.responseType === 'arraybuffer';
+      // readyState 是只读属性，严格模式下直接赋值会抛错，必须用 defineProperty
+      const done = () => {
+        Object.defineProperty(self, 'readyState', { value: 4, configurable: true });
+        self.dispatchEvent(new Event('readystatechange'));
+        self.dispatchEvent(new Event('load'));
+        self.dispatchEvent(new Event('loadend'));
+      };
+      HttpPlugin.get({
+        url,
+        headers,
+        params: {},
+        responseType: wantAb ? 'ARRAY_BUFFER' : 'TEXT',
+        ...NATIVE_OPTS,
+      })
         .then((res) => {
-          Object.defineProperty(self, 'responseText', { value: res.data, writable: true });
-          Object.defineProperty(self, 'response', { value: res.data, writable: true });
-          Object.defineProperty(self, 'status', { value: res.status, writable: true });
-          self.readyState = 4;
-          self.dispatchEvent(new Event('readystatechange'));
-          self.dispatchEvent(new Event('load'));
-          self.dispatchEvent(new Event('loadend'));
+          let data = res.data;
+          if (wantAb) {
+            data = base64ToArrayBuffer(typeof data === 'string' ? data : '');
+            Object.defineProperty(self, 'response', { value: data, configurable: true });
+          } else {
+            Object.defineProperty(self, 'responseText', { value: String(data), configurable: true });
+            Object.defineProperty(self, 'response', { value: String(data), configurable: true });
+          }
+          Object.defineProperty(self, 'status', { value: res.status, configurable: true });
+          done();
         })
-        .catch((e) => {
-          self.readyState = 4;
+        .catch(() => {
           self.dispatchEvent(new Event('error'));
           self.dispatchEvent(new Event('loadend'));
+          try {
+            Object.defineProperty(self, 'readyState', { value: 4, configurable: true });
+          } catch (e) {}
         });
     };
 
@@ -222,13 +266,15 @@
   }
 
   /* ---------- 4. 安卓 App 首次启动引导 ---------- */
-  window.addEventListener('load', () => {
-    // 安卓原生 HTTP 绕过 CORS（最重要）
-    const nativeReady = setupAndroidNativeHttp();
-    if (nativeReady) {
-      console.log('[影序馆] 安卓原生 HTTP 已启用，所有请求绕过 CORS');
-    }
+  // 立即打补丁，不等 window load：
+  // 首页在 DOMContentLoaded 就发起数据请求（早于 load），
+  // 若等 load 再打补丁，首屏请求会因 CORS 失败（表现为"刚打开加载失败，重试才成功"）
+  const nativeReady = setupAndroidNativeHttp();
+  if (nativeReady) {
+    console.log('[影序馆] 安卓原生 HTTP 已启用，所有请求绕过 CORS');
+  }
 
+  window.addEventListener('load', () => {
     if (window.Api && window.Api.isAndroid) return;
     try {
       if (localStorage.getItem('yxg_proxy_guided')) return;

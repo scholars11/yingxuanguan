@@ -4,7 +4,7 @@
  *       /proxy 与 /poster 为动态接口，始终走网络，不缓存
  */
 
-const CACHE_VERSION = 'yxg-static-v2';
+const CACHE_VERSION = 'yxg-static-v3';
 
 const CORE_ASSETS = [
   './',
@@ -16,6 +16,7 @@ const CORE_ASSETS = [
   './js/config.js',
   './js/api.js',
   './js/common.js',
+  './js/history.js',
   './js/home.js',
   './js/detail.js',
   './js/play.js',

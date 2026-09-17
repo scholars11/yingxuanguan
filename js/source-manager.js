@@ -165,6 +165,10 @@ const SourceManager = {
   setCurrent(id) {
     Config.setCurrentSource(id);
     this.renderList();
+    // 立即更新首页"当前数据源"显示，不等异步刷新
+    const cur = Config.getCurrentSource();
+    const nameEl = document.getElementById('currentSourceName');
+    if (nameEl && cur) nameEl.textContent = cur.name;
     Common.toast('已切换数据源');
     if (window.onSourcesChanged) window.onSourcesChanged();
   },
