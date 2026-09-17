@@ -1,0 +1,78 @@
+{
+  "name": "yingxuanguan",
+  "version": "1.0.0",
+  "description": "影序馆 - 多源影视聚合（Windows / Android 手机 / Android TV）",
+  "main": "electron-main.js",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "app": "electron .",
+    "app:smoke": "electron . --smoke",
+    "dist:win": "electron-builder --win",
+    "gen:icons": "node scripts/gen-icons.js",
+    "www": "node scripts/prepare-www.js",
+    "cap:add": "cap add android",
+    "cap:sync": "cap sync android",
+    "cap:tv": "node scripts/setup-android-tv.js",
+    "build:apk": "npm run www && cap sync android && npm run cap:tv"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "electron": "^44.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.yingxuanguan.app",
+    "productName": "影序馆",
+    "copyright": "Copyright © 2026 影序馆",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron-main.js",
+      "server.js",
+      "index.html",
+      "detail.html",
+      "play.html",
+      "download.html",
+      "manifest.webmanifest",
+      "sw.js",
+      "css/**/*",
+      "js/**/*",
+      "icons/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "icons/icon-512.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "artifactName": "YingXuanGuan-Windows-Setup-${version}.${ext}",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "影序馆"
+    },
+    "portable": {
+      "artifactName": "YingXuanGuan-Windows-Portable-${version}.${ext}"
+    }
+  }
+}

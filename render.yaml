@@ -1,0 +1,19 @@
+# Render 部署配置（手机/TV 版所需的公网服务器，免费实例即可）
+# 使用方法：
+#   1. 把本项目推送到 GitHub
+#   2. 登录 https://dashboard.render.com → New → Blueprint，选中本仓库
+#      （也可手动创建 Web Service：Build Command 填 npm install --omit=dev，
+#        Start Command 填 node server.js，环境变量 HOST=0.0.0.0）
+#   3. 部署完成得到形如 https://yingxuanguan.onrender.com 的地址
+#   4. 在手机/TV 版的「设置 → 服务器地址」填入该地址即可
+services:
+  - type: web
+    name: yingxuanguan
+    runtime: node
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      # PORT 由 Render 自动注入，无需配置

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#0f1115">
+  <title>影视详情 - 影序馆</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="影序馆">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-inner">
+        <a href="/" class="logo">
+          <span class="logo-icon">影</span>
+          <span class="logo-text">影序馆</span>
+        </a>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input id="searchInput" class="search-input" type="text" placeholder="搜索影视名称..." enterkeyhint="search">
+          <button class="search-btn" onclick="Detail.doSearch()">搜索</button>
+        </div>
+        <div class="header-actions">
+          <div class="icon-btn-wrap">
+            <a class="icon-btn" href="/download.html" title="下载电脑版 / 手机版 / TV版" style="text-decoration:none;color:inherit;">⬇</a>
+          </div>
+          <div class="icon-btn-wrap">
+            <button class="icon-btn" onclick="SourceManager.open()" title="数据源管理">⚙</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="back-bar">
+        <button class="back-btn" onclick="history.back()" aria-label="返回">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span style="font-size:14px;color:var(--c-text-soft);">返回</span>
+      </div>
+
+      <!-- 详情骨架 -->
+      <div id="detailSkeleton" style="display:none;">
+        <div class="detail-hero">
+          <div class="skeleton-poster" style="aspect-ratio:2/3;border-radius:10px;"></div>
+          <div>
+            <div class="skeleton-line" style="height:24px;width:50%;margin-bottom:14px;"></div>
+            <div class="skeleton-line" style="width:30%;margin-bottom:8px;"></div>
+            <div class="skeleton-line" style="width:40%;margin-bottom:8px;"></div>
+            <div class="skeleton-line" style="width:35%;margin-bottom:8px;"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 详情内容 -->
+      <div id="detailContent"></div>
+
+      <!-- 错误状态 -->
+      <div id="errorState" class="error-box" style="display:none;">
+        <div class="icon">⚠</div>
+        <div id="errorMsg">加载失败</div>
+        <button class="btn btn-primary" style="margin-top:12px;" onclick="Detail.load()">重试</button>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div>影序馆 · 本地影视聚合</div>
+    </footer>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/source-manager.js"></script>
+  <script src="/js/app-shell.js"></script>
+  <script src="/js/detail.js"></script>
+</body>
+</html>

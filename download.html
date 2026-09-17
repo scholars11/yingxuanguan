@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=10">
+  <meta name="theme-color" content="#0f1115">
+  <title>下载影序馆 - Windows / Android 手机 / Android TV / iPhone</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #161920;
+      --card-hover: #1c2029;
+      --border: #262b35;
+      --text: #e8eaed;
+      --mute: #8a8f99;
+      --gold: #daa854;
+      --gold-dark: #b98b3d;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 32px 18px 60px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 18px; }
+    .brand .logo {
+      width: 34px; height: 34px; border-radius: 9px; border: 2px solid var(--gold);
+      display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 16px;
+    }
+    .topbar a.home { color: var(--mute); text-decoration: none; font-size: 14px; }
+    .topbar a.home:hover { color: var(--gold); }
+
+    .hero { text-align: center; margin-bottom: 38px; }
+    .hero h1 { font-size: 34px; margin-bottom: 10px; letter-spacing: 2px; }
+    .hero h1 em { font-style: normal; color: var(--gold); }
+    .hero p { color: var(--mute); font-size: 15px; }
+    .release-meta { margin-top: 12px; font-size: 13px; color: var(--mute); min-height: 20px; }
+    .release-meta .ok { color: var(--gold); }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 26px 22px; display: flex; flex-direction: column;
+      transition: transform .15s, border-color .15s, background .15s;
+    }
+    .card:hover { transform: translateY(-3px); border-color: #3a4150; background: var(--card-hover); }
+    .card .platform-icon { font-size: 40px; line-height: 1; margin-bottom: 14px; }
+    .card h2 { font-size: 19px; margin-bottom: 4px; }
+    .card .sub { font-size: 13px; color: var(--mute); margin-bottom: 18px; }
+    .card .btns { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+    .btn {
+      display: block; text-align: center; text-decoration: none; border-radius: 10px;
+      padding: 11px 14px; font-size: 14px; font-weight: 600; border: 1px solid var(--border);
+      color: var(--text); background: transparent; transition: all .15s; cursor: pointer;
+    }
+    .btn-primary { background: var(--gold); border-color: var(--gold); color: #1a140a; }
+    .btn-primary:hover { background: var(--gold-dark); border-color: var(--gold-dark); }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .btn.disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+    .btn small { display: block; font-weight: 400; font-size: 11px; opacity: .8; margin-top: 2px; }
+
+    .faq { margin-top: 44px; }
+    .faq h3 { font-size: 16px; margin: 22px 0 10px; color: var(--gold); }
+    .faq p, .faq li { color: var(--mute); font-size: 13.5px; }
+    .faq ul { padding-left: 20px; }
+    .faq li { margin-bottom: 6px; }
+    .faq code {
+      background: #0b0d11; border: 1px solid var(--border); border-radius: 5px;
+      padding: 1px 6px; font-size: 12.5px; color: var(--gold);
+    }
+    footer { text-align: center; color: #555b66; font-size: 12px; margin-top: 46px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="./index.html">
+        <span class="logo">影</span><span>影序馆</span>
+      </a>
+      <a class="home" href="./index.html">返回首页 →</a>
+    </div>
+
+    <div class="hero">
+      <h1>下载<em>影序馆</em></h1>
+      <p>一个账号都不用注册 · 支持 Windows 电脑 / Android 手机 / Android 电视 / iPhone</p>
+      <div class="release-meta" id="releaseMeta">正在检查最新版本…</div>
+    </div>
+
+    <div class="cards">
+      <!-- Windows -->
+      <div class="card">
+        <div class="platform-icon">💻</div>
+        <h2>Windows 电脑版</h2>
+        <div class="sub">安装版可自选目录、创建快捷方式；绿色版解压即用。均为 64 位，Win10 及以上。</div>
+        <div class="btns">
+          <a class="btn btn-primary disabled" id="winSetup" href="#" rel="noopener">下载安装版<small>Setup .exe</small></a>
+          <a class="btn btn-ghost disabled" id="winPortable" href="#" rel="noopener">下载绿色免安装版<small>Portable .exe</small></a>
+        </div>
+      </div>
+
+      <!-- Android 手机 + TV -->
+      <div class="card">
+        <div class="platform-icon">📺</div>
+        <h2>安卓手机 / 电视</h2>
+        <div class="sub">同一个 APK 同时支持安卓手机与 Android TV（已适配遥控器方向键）。Android 7.0 及以上。</div>
+        <div class="btns">
+          <a class="btn btn-primary disabled" id="androidApk" href="#" rel="noopener">下载 APK 安装包<small>手机 / TV 通用</small></a>
+        </div>
+      </div>
+
+      <!-- iPhone -->
+      <div class="card">
+        <div class="platform-icon">📱</div>
+        <h2>iPhone / iPad</h2>
+        <div class="sub">iOS 受系统限制无法安装独立安装包，用 Safari 打开网站后「添加到主屏幕」即可像 App 一样全屏使用。</div>
+        <div class="btns">
+          <a class="btn btn-ghost" href="./index.html">打开网页版<small>Safari → 分享 → 添加到主屏幕</small></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq">
+      <h3>安卓手机如何安装 APK？</h3>
+      <ul>
+        <li>下载 APK 后点击安装，按提示允许浏览器 / 文件管理器「安装未知应用」即可。</li>
+        <li>首次打开请点右上角 ⚙ 设置，在「服务器地址」填入已部署的服务地址（电脑版无需填写，已内置）。</li>
+      </ul>
+
+      <h3>Android TV 如何安装？</h3>
+      <ul>
+        <li>方式一：把 APK 拷到 U 盘，用电视自带的「文件管理 / 媒体中心」打开安装（需在设置中允许未知来源）。</li>
+        <li>方式二：电视开启「开发者选项 - USB 调试」，用 adb 安装：<code>adb install YingXuanGuan-Android-PhoneTV.apk</code></li>
+        <li>安装后在电视桌面「应用」行找到影序馆，遥控器方向键选择、确认键播放。</li>
+      </ul>
+
+      <h3>手机/TV 版为什么要填「服务器地址」？</h3>
+      <p>影序馆的影视数据来自第三方资源站，网页版靠本机的代理服务绕过跨域限制；电脑版软件内置了该服务，
+        而手机/电视无法内置运行，需要一个部署在公网的同名服务（项目里的 <code>server.js</code>，可免费部署到 Render 等平台）。
+        部署后把形如 <code>https://你的服务名.onrender.com</code> 的地址填入即可。</p>
+
+      <h3>安全与免责</h3>
+      <p>本软件不存储、不上传任何影视资源，所有数据均来自用户自行配置的公开数据源，请仅在拥有合法访问权限时使用。</p>
+    </div>
+
+    <footer>影序馆 · 多源影视聚合</footer>
+  </div>
+
+  <script>
+    // ===== 发布配置：代码推送到 GitHub 后，把这里改为 "你的用户名/仓库名" =====
+    const REPO = '';
+
+    const meta = document.getElementById('releaseMeta');
+
+    function setDisabled(id, disabled) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('disabled', disabled);
+      if (disabled) el.removeAttribute('href');
+    }
+
+    function markUnpublished(reason) {
+      meta.innerHTML = '当前版本：<span>安装包暂未发布</span>';
+      ['winSetup', 'winPortable', 'androidApk'].forEach((id) => setDisabled(id, true));
+      const labels = {
+        winSetup: '暂未发布（Setup）',
+        winPortable: '暂未发布（免安装版）',
+        androidApk: '暂未发布（APK）',
+      };
+      Object.keys(labels).forEach((id) => {
+        const el = document.getElementById(id);
+        const small = el.querySelector('small');
+        if (small) small.textContent = labels[id];
+      });
+      if (reason) console.warn('release check skipped:', reason);
+    }
+
+    async function loadRelease() {
+      if (!REPO) { markUnpublished('REPO_EMPTY'); return; }
+      let data;
+      try {
+        const resp = await fetch('https://api.github.com/repos/' + REPO + '/releases/latest', { cache: 'no-store' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        data = await resp.json();
+      } catch (e) {
+        markUnpublished(String(e));
+        return;
+      }
+
+      const assets = data.assets || [];
+      const find = (re) => assets.find((a) => re.test(a.name));
+
+      const setup = find(/Setup.*\.exe$/i);
+      const portable = find(/Portable.*\.exe$/i);
+      const apk = find(/\.apk$/i);
+
+      if (setup) { setDisabled('winSetup', false); document.getElementById('winSetup').href = setup.browser_download_url; }
+      if (portable) { setDisabled('winPortable', false); document.getElementById('winPortable').href = portable.browser_download_url; }
+      if (apk) { setDisabled('androidApk', false); document.getElementById('androidApk').href = apk.browser_download_url; }
+
+      const date = data.published_at ? new Date(data.published_at).toLocaleDateString('zh-CN') : '';
+      meta.innerHTML = '最新版本：<span class="ok">' + (data.tag_name || '') + '</span>' + (date ? '　发布日期：' + date : '');
+
+      if (!setup || !portable || !apk) {
+        meta.innerHTML += '　（部分平台产物仍在构建中，稍后刷新）';
+      }
+    }
+
+    loadRelease();
+  </script>
+</body>
+</html>

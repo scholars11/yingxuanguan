@@ -1,0 +1,10 @@
+{
+  "appId": "com.yingxuanguan.app",
+  "appName": "影序馆",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}

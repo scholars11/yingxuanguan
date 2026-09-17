@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#000000">
+  <title>播放 - 影序馆</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="影序馆">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { background: #000; }
+    .header { background: rgba(0,0,0,0.85); }
+    .footer { border-top-color: var(--c-border); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-inner">
+        <a href="/" class="logo">
+          <span class="logo-icon">影</span>
+          <span class="logo-text">影序馆</span>
+        </a>
+        <div class="header-actions" style="margin-left:auto;">
+          <a class="icon-btn" href="/download.html" title="下载电脑版 / 手机版 / TV版" style="text-decoration:none;color:inherit;">⬇</a>
+          <button class="icon-btn" onclick="SourceManager.open()" title="数据源管理">⚙</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="back-bar">
+        <button class="back-btn" onclick="history.back()" aria-label="返回">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span style="font-size:14px;color:var(--c-text-soft);">返回详情</span>
+        <button class="btn btn-sm" style="margin-left:auto;" onclick="Common.go('index.html')">回到首页</button>
+      </div>
+
+      <!-- 播放器 + 剧集 -->
+      <div class="play-layout">
+        <div class="play-main">
+          <div class="player-wrap" id="playerWrap">
+            <div class="player-placeholder">
+              <div style="font-size:36px;">⏳</div>
+              <div>正在加载播放器...</div>
+            </div>
+          </div>
+          <h1 class="play-title" id="playTitle">加载中...</h1>
+          <div class="play-info" id="playInfo"></div>
+          <div class="play-action-bar" id="playActionBar">
+            <button class="btn" id="prevEpBtn" onclick="Play.changeEpisode(-1)">上一集</button>
+            <button class="btn" id="nextEpBtn" onclick="Play.changeEpisode(1)">下一集</button>
+            <a class="btn" id="detailLink" href="#">查看详情</a>
+          </div>
+        </div>
+
+        <aside class="play-side">
+          <h4>剧集列表</h4>
+          <div id="sourceTabs" class="source-tabs" style="margin-bottom:10px;"></div>
+          <div class="episode-grid" id="episodeGrid"></div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div>影序馆 · 本地影视聚合</div>
+    </footer>
+  </div>
+
+  <!-- hls.js 用于播放 m3u8（本地内置，离线可用） -->
+  <script src="/js/vendor/hls.min.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/source-manager.js"></script>
+  <script src="/js/app-shell.js"></script>
+  <script src="/js/play.js"></script>
+</body>
+</html>

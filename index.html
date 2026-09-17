@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#0f1115">
+  <meta name="description" content="影序馆 - 多源影视聚合">
+  <title>影序馆</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="影序馆">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- 头部 -->
+    <header class="header">
+      <div class="header-inner">
+        <a href="/" class="logo">
+          <span class="logo-icon">影</span>
+          <span class="logo-text">影序馆</span>
+        </a>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input id="searchInput" class="search-input" type="text" placeholder="搜索影视名称..." enterkeyhint="search">
+          <button class="search-btn" onclick="Home.doSearch()">搜索</button>
+        </div>
+        <div class="header-actions">
+          <div class="icon-btn-wrap">
+            <a class="icon-btn" href="/download.html" title="下载电脑版 / 手机版 / TV版" style="text-decoration:none;color:inherit;">⬇</a>
+          </div>
+          <div class="icon-btn-wrap">
+            <button class="icon-btn" onclick="SourceManager.open()" title="数据源管理">
+              ⚙
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主体 -->
+    <main class="main">
+      <!-- 当前数据源显示 -->
+      <div id="currentSourceBar" class="current-source-bar" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--c-text-mute);padding:8px 0 4px;">
+        <span>当前数据源：</span>
+        <span id="currentSourceName" style="color:var(--c-primary);font-weight:500;">-</span>
+        <button class="btn btn-sm" onclick="SourceManager.open()" style="margin-left:auto;">切换</button>
+      </div>
+
+      <!-- 分类导航 -->
+      <nav class="category-nav" id="categoryNav">
+        <span class="category-chip active" data-t="">全部</span>
+      </nav>
+
+      <!-- 视频列表 -->
+      <h2 class="section-title" id="listTitle">
+        最新影视
+        <span class="sub" id="listSub"></span>
+      </h2>
+
+      <div id="videoList" class="video-grid"></div>
+
+      <!-- 空状态 -->
+      <div id="emptyState" class="empty" style="display:none;">
+        <div class="icon">🎬</div>
+        <div>暂无数据</div>
+      </div>
+
+      <!-- 错误状态 -->
+      <div id="errorState" class="error-box" style="display:none;">
+        <div class="icon">⚠</div>
+        <div id="errorMsg">加载失败</div>
+        <button class="btn btn-primary" style="margin-top:12px;" onclick="Home.loadList()">重试</button>
+      </div>
+
+      <!-- 分页 -->
+      <div id="pagination" class="pagination" style="display:none;"></div>
+    </main>
+
+    <!-- 移动端底部导航 -->
+    <nav class="mobile-tabbar">
+      <div class="mobile-tabbar-inner">
+        <a href="/" class="tabbar-item active">
+          <span class="icon">🏠</span>
+          <span>首页</span>
+        </a>
+        <a href="javascript:SourceManager.open()" class="tabbar-item">
+          <span class="icon">⚙</span>
+          <span>数据源</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+      <div>影序馆 · 本地影视聚合 · 仅供学习交流使用</div>
+    </footer>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/source-manager.js"></script>
+  <script src="/js/app-shell.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>
