@@ -41,6 +41,8 @@ jobs:
 
       - name: 打包 exe（安装版 + 免安装版）
         run: npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -66,11 +68,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 设置 JDK 17
+      - name: 设置 JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: 设置 Android SDK
         uses: android-actions/setup-android@v3
