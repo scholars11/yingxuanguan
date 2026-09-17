@@ -74,5 +74,8 @@
     "portable": {
       "artifactName": "YingXuanGuan-Windows-Portable-${version}.${ext}"
     }
+  },
+  "dependencies": {
+    "@capacitor-community/http": "^1.4.1"
   }
 }

@@ -147,26 +147,93 @@
   });
   ensureFocusable();
 
-  /* ---------- 3. 安卓 App 首次启动引导配置服务器 ---------- */
-  function isAndroidApp() {
-    return !!(window.Capacitor &&
-      typeof window.Capacitor.getPlatform === 'function' &&
-      window.Capacitor.getPlatform() === 'android');
+  /* ---------- 3. 安卓 App 原生 HTTP 绕过 CORS ---------- */
+  // 安卓 Capacitor WebView 受 CORS 限制，但原生 HTTP 插件没有
+  // 这里 monkey-patch fetch 和 XMLHttpRequest 让所有请求（含 hls.js 的 m3u8）都走原生层
+  function setupAndroidNativeHttp() {
+    const HttpPlugin = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Http;
+    if (!HttpPlugin) return false;
+
+    // --- Patch fetch ---
+    const _origFetch = window.fetch.bind(window);
+    window.fetch = async function (input, init = {}) {
+      const url = typeof input === 'string' ? input : input.url;
+      if (!url || url.startsWith('data:') || url.startsWith('blob:')) {
+        return _origFetch(input, init);
+      }
+      try {
+        const res = await HttpPlugin.get({
+          url: url,
+          headers: init.headers || {},
+          params: {},
+        });
+        return new Response(res.data, {
+          status: res.status,
+          statusText: '',
+          headers: res.headers || {},
+        });
+      } catch (e) {
+        return _origFetch(input, init); // 降级
+      }
+    };
+
+    // --- Patch XMLHttpRequest (hls.js 默认用 XHR) ---
+    const _origXHROpen = XMLHttpRequest.prototype.open;
+    const _origXHRSend = XMLHttpRequest.prototype.send;
+    const _origXHRSetHeader = XMLHttpRequest.prototype.setRequestHeader;
+
+    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+      this.__nativeUrl = url;
+      this.__nativeHeaders = {};
+      return _origXHROpen.call(this, method, url, ...rest);
+    };
+
+    XMLHttpRequest.prototype.setRequestHeader = function (key, val) {
+      this.__nativeHeaders = this.__nativeHeaders || {};
+      this.__nativeHeaders[key] = val;
+      return _origXHRSetHeader.call(this, key, val);
+    };
+
+    XMLHttpRequest.prototype.send = function () {
+      const url = this.__nativeUrl;
+      if (!url || url.startsWith('data:') || url.startsWith('blob:')) {
+        return _origXHRSend.apply(this, arguments);
+      }
+      const headers = this.__nativeHeaders || {};
+      const self = this;
+      HttpPlugin.get({ url, headers, params: {} })
+        .then((res) => {
+          Object.defineProperty(self, 'responseText', { value: res.data, writable: true });
+          Object.defineProperty(self, 'response', { value: res.data, writable: true });
+          Object.defineProperty(self, 'status', { value: res.status, writable: true });
+          self.readyState = 4;
+          self.dispatchEvent(new Event('readystatechange'));
+          self.dispatchEvent(new Event('load'));
+          self.dispatchEvent(new Event('loadend'));
+        })
+        .catch((e) => {
+          self.readyState = 4;
+          self.dispatchEvent(new Event('error'));
+          self.dispatchEvent(new Event('loadend'));
+        });
+    };
+
+    return true;
   }
 
+  /* ---------- 4. 安卓 App 首次启动引导 ---------- */
   window.addEventListener('load', () => {
-    if (!isAndroidApp()) return;
+    // 安卓原生 HTTP 绕过 CORS（最重要）
+    const nativeReady = setupAndroidNativeHttp();
+    if (nativeReady) {
+      console.log('[影序馆] 安卓原生 HTTP 已启用，所有请求绕过 CORS');
+    }
+
+    if (window.Api && window.Api.isAndroid) return;
     try {
       if (localStorage.getItem('yxg_proxy_guided')) return;
       localStorage.setItem('yxg_proxy_guided', '1');
-      const hasProxy = !!(window.Config && Config.getProxyBase());
-      if (!hasProxy) {
-        setTimeout(() => {
-          if (window.Common && Common.toast) {
-            Common.toast('请点击右上角 ⚙ 设置，填写"服务器地址"后才能搜索播放', 6000);
-          }
-        }, 800);
-      }
+      // 安卓环境不再需要配置服务器地址（原生 HTTP 直连），不弹提示
     } catch (e) {}
   });
 })();
