@@ -216,6 +216,14 @@
       return _origXHRSetHeader.call(this, key, val);
     };
 
+    // hls.js 超时/切换时会 abort 请求：标记后，未完成的原生请求不再触发任何回调，
+    // 避免重复加载与错误状态错乱
+    const _origXHRAbort = XMLHttpRequest.prototype.abort;
+    XMLHttpRequest.prototype.abort = function () {
+      this.__aborted = true;
+      return _origXHRAbort.call(this);
+    };
+
     XMLHttpRequest.prototype.send = function () {
       const url = this.__nativeUrl;
       // 仅接管 http(s) 的 GET 请求，其余（相对路径/非GET/data:）走原生 XHR
@@ -229,6 +237,7 @@
       const wantAb = this.responseType === 'arraybuffer';
       // readyState 是只读属性，严格模式下直接赋值会抛错，必须用 defineProperty
       const done = () => {
+        if (self.__aborted) return;
         Object.defineProperty(self, 'readyState', { value: 4, configurable: true });
         self.dispatchEvent(new Event('readystatechange'));
         self.dispatchEvent(new Event('load'));
@@ -242,6 +251,7 @@
         ...NATIVE_OPTS,
       })
         .then((res) => {
+          if (self.__aborted) return;
           let data = res.data;
           if (wantAb) {
             data = base64ToArrayBuffer(typeof data === 'string' ? data : '');
@@ -254,6 +264,7 @@
           done();
         })
         .catch(() => {
+          if (self.__aborted) return;
           self.dispatchEvent(new Event('error'));
           self.dispatchEvent(new Event('loadend'));
           try {

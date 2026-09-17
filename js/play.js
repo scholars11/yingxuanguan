@@ -241,6 +241,7 @@ const Play = {
 
     // 销毁旧的
     this.destroyPlayer();
+    this._netRetried = false;
 
     const wrap = document.getElementById('playerWrap');
     wrap.innerHTML = '<video id="videoPlayer" controls playsinline autoplay></video>';
@@ -257,10 +258,20 @@ const Play = {
       if (window.Hls && Hls.isSupported()) {
         // Chrome/Firefox 通过 hls.js
         const hls = new Hls({
-          maxBufferLength: 30,
-          maxMaxBufferLength: 60,
-          enableWorker: true,
-        });
+      maxBufferLength: 30,
+      maxMaxBufferLength: 60,
+      enableWorker: true,
+      // 手机直连资源站网络较慢，调大超时并增加重试，避免误报 levelLoadError
+      manifestLoadingTimeOut: 20000,
+      manifestLoadingMaxRetry: 3,
+      manifestLoadingRetryDelay: 1000,
+      levelLoadingTimeOut: 20000,
+      levelLoadingMaxRetry: 4,
+      levelLoadingRetryDelay: 1000,
+      fragLoadingTimeOut: 45000,
+      fragLoadingMaxRetry: 6,
+      fragLoadingRetryDelay: 1000,
+    });
         this.state.hls = hls;
         hls.loadSource(url);
         hls.attachMedia(video);
@@ -313,6 +324,13 @@ const Play = {
 
   handlePlayError(data) {
     console.error('播放错误', data);
+    // 网络类致命错误自动重试一次（手机网络慢时 hls.js 内部重试可能全部超时）
+    if (data && data.fatal && !this._netRetried && data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+      this._netRetried = true;
+      Common.toast('网络波动，正在自动重试...', 2000);
+      try { this.state.hls.startLoad(); return; } catch (e) {}
+    }
+    this._netRetried = false;
     let msg = '播放失败';
     if (data && data.details) msg += '：' + data.details;
     msg += '\n可尝试切换其他播放源或剧集';
