@@ -8,7 +8,7 @@
 const Updater = {
   REPO: 'scholars11/yingxuanguan',
   LAST_CHECK_KEY: 'yxg_update_last_check',
-  DAY: 24 * 3600 * 1000,
+  DAY: 4 * 3600 * 1000, // 静默检查间隔：4 小时
 
   // 当前版本（与 package.json 保持一致）
   get current() {
@@ -22,11 +22,15 @@ const Updater = {
     } else {
       start();
     }
+    // 从后台切回前台时也检查（仍受间隔限制，不会频繁打扰）
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) this.check(false);
+    });
   },
 
   // 检查更新；manual=true 时显示"已是最新/检查失败"提示
   async check(manual) {
-    // 每天最多静默检查一次
+    // 距上次静默检查不足间隔则跳过
     if (!manual) {
       try {
         const last = parseInt(localStorage.getItem(this.LAST_CHECK_KEY) || '0');
