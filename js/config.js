@@ -9,6 +9,9 @@ const Config = {
   SETTINGS_KEY: 'yingxuanguan_settings_v1',
   PROXY_KEY: 'yingxuanguan_proxy_v1',
 
+  // 应用当前版本（与 package.json version 保持一致，用于更新检查）
+  APP_VERSION: '1.1.0',
+
   // 线上代理地址（打包手机/TV 安装包时可被替换；为空表示用当前网站同源地址）
   // 电脑版软件会自动使用内置服务，无需填写
   ONLINE_PROXY: '__ONLINE_PROXY__',

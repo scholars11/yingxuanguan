@@ -20,6 +20,7 @@ const SourceManager = {
           <div class="source-toolbar">
             <button class="btn btn-primary" onclick="SourceManager.openEditor()">+ 添加数据源</button>
             <button class="btn" onclick="SourceManager.testAll()">测试连通性</button>
+            <button class="btn" onclick="Updater.check(true)">检查更新</button>
           </div>
           <div style="margin:12px 0;padding:10px;border:1px solid var(--c-border,#2a2e36);border-radius:8px;background:rgba(255,255,255,0.02);">
             <label style="display:block;font-size:13px;margin-bottom:6px;">服务器地址（手机 / TV 版填写，电脑版留空）</label>
