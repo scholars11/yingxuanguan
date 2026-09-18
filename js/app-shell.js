@@ -190,10 +190,14 @@
         });
         // CapacitorHttp 对 application/json 响应会自动解析成对象，
         // Response 构造器会把对象转成 "[object Object]" 导致 res.json() 失败，
-        // 必须还原为 JSON 字符串
-        const body = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
+        // 必须还原为 JSON 字符串；同时处理 null/undefined 等边界情况
+        let body = res.data;
+        if (typeof body !== 'string') {
+          try { body = body == null ? '' : JSON.stringify(body); }
+          catch (e) { body = String(body || ''); }
+        }
         return new Response(body, {
-          status: res.status,
+          status: res.status || 200,
           statusText: '',
           headers: res.headers || {},
         });
@@ -258,7 +262,10 @@
           if (self.__aborted) return;
           let data = res.data;
           // 同 fetch：JSON 响应可能被原生层解析成对象，还原为字符串
-          if (typeof data !== 'string') data = JSON.stringify(data);
+          if (typeof data !== 'string') {
+            try { data = data == null ? '' : JSON.stringify(data); }
+            catch (e) { data = String(data || ''); }
+          }
           if (wantAb) {
             data = base64ToArrayBuffer(typeof data === 'string' ? data : '');
             Object.defineProperty(self, 'response', { value: data, configurable: true });
@@ -290,6 +297,36 @@
   if (nativeReady) {
     console.log('[影序馆] 安卓原生 HTTP 已启用，所有请求绕过 CORS');
   }
+
+  /* ---------- 5. 安卓硬件返回键拦截 ---------- */
+  // 不拦截的话，按手机返回键会直接退出 App，而不是回退页面
+  function setupBackButton() {
+    const C = window.Capacitor;
+    const App = C && C.Plugins && (C.Plugins.App || C.Plugins.CapacitorApp);
+    if (!App || typeof App.addListener !== 'function') return false;
+
+    App.addListener('backButton', ({ canGoBack }) => {
+      // 优先：如果有浏览器历史，先回退页面
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+      // 在首页/无历史可回退时：最小化 App 而不是退出
+      // 移动到后台，用户可以从最近任务列表恢复
+      if (App.minimizeApp && typeof App.minimizeApp === 'function') {
+        App.minimizeApp();
+      } else if (App.exitApp && typeof App.exitApp === 'function') {
+        App.exitApp();
+      }
+    });
+    return true;
+  }
+
+  // 延迟绑定，确保 Capacitor Plugins 已注册
+  setTimeout(() => {
+    const ok = setupBackButton();
+    if (ok) console.log('[影序馆] 硬件返回键已拦截：回退页面或最小化 App');
+  }, 500);
 
   window.addEventListener('load', () => {
     if (window.Api && window.Api.isAndroid) return;
