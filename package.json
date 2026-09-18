@@ -1,6 +1,6 @@
 {
   "name": "yingxuanguan",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "影序馆 - 多源影视聚合（Windows / Android 手机 / Android TV）",
   "main": "electron-main.js",
   "private": true,

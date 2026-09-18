@@ -255,7 +255,9 @@
         url,
         headers,
         params: {},
-        responseType: wantAb ? 'ARRAY_BUFFER' : 'TEXT',
+        // Capacitor 7 要求 responseType 为小写：'arraybuffer' | 'text' | 'json' | ...
+        // 大写（如 ARRAY_BUFFER）不被识别，会退化成默认文本模式，导致二进制分片数据损坏
+        responseType: wantAb ? 'arraybuffer' : 'text',
         ...NATIVE_OPTS,
       })
         .then((res) => {
