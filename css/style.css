@@ -965,7 +965,7 @@ ul, li { list-style: none; }
   .detail-hero { grid-template-columns: 100px 1fr; }
 }
 
-/* 横屏手机 */
+/* 横屏小窗口 */
 @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .play-layout { grid-template-columns: 1fr 300px; }
 }

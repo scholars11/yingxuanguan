@@ -261,7 +261,7 @@ const Play = {
       maxBufferLength: 30,
       maxMaxBufferLength: 60,
       enableWorker: true,
-      // 手机直连资源站网络较慢，调大超时并增加重试，避免误报 levelLoadError
+      // 资源站网络可能较慢，调大超时并增加重试，避免误报 levelLoadError
       manifestLoadingTimeOut: 20000,
       manifestLoadingMaxRetry: 3,
       manifestLoadingRetryDelay: 1000,
@@ -324,7 +324,7 @@ const Play = {
 
   handlePlayError(data) {
     console.error('播放错误', data);
-    // 网络类致命错误自动重试一次（手机网络慢时 hls.js 内部重试可能全部超时）
+    // 网络类致命错误自动重试一次（网络慢时 hls.js 内部重试可能全部超时）
     if (data && data.fatal && !this._netRetried && data.type === Hls.ErrorTypes.NETWORK_ERROR) {
       this._netRetried = true;
       Common.toast('网络波动，正在自动重试...', 2000);

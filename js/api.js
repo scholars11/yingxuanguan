@@ -1,23 +1,12 @@
 /*
  * api.js - 接口请求封装
- * 电脑版：经过内置 Node.js 代理 server.js
- * 手机/TV (Android Capacitor)：用原生 HTTP 直连，绕过 CORS，无需任何云代理
+ * 电脑版：经过内置 Node.js 代理 server.js（同源）
+ * 网页部署：走当前网站同源的 /proxy 代理，或用户在设置中填写的自定义代理地址
  */
 
-// 判断是否在安卓 App 内（Capacitor）
-function isAndroidCapacitor() {
-  return !!(window.Capacitor &&
-    typeof window.Capacitor.getPlatform === 'function' &&
-    window.Capacitor.getPlatform() === 'android');
-}
-
 const Api = {
-  // 安卓 App 内：直接请求数据源 API，不走代理（原生 HTTP 绕过 CORS）
-  get isAndroid() { return isAndroidCapacitor(); },
-
-  // 电脑版/浏览器：服务基础地址，默认同源（server.js）
+  // 服务基础地址：用户设置 > 当前网站同源
   get LOCAL() {
-    if (this.isAndroid) return ''; // 安卓直连
     const base = (window.Config && Config.getProxyBase()) || location.origin;
     return base.replace(/\/+$/, '');
   },
@@ -28,16 +17,14 @@ const Api = {
     return this.LOCAL + '/poster?url=';
   },
 
-  // 拼接代理URL（安卓 App 内直接返回原 URL，原生 HTTP 绕过 CORS）
+  // 拼接代理URL
   wrap(targetUrl) {
-    if (this.isAndroid) return targetUrl;
     return this.PROXY + encodeURIComponent(targetUrl);
   },
 
   // 包装海报URL
   wrapPoster(url) {
     if (!url) return '';
-    if (this.isAndroid) return url; // 安卓 App 内直连
     if (url.startsWith('data:') || url.startsWith(this.LOCAL)) return url;
     return this.POSTER + encodeURIComponent(url);
   },

@@ -81,7 +81,6 @@ const Updater = {
       modal.className = 'modal-mask';
       document.body.appendChild(modal);
     }
-    const apk = (rel.assets || []).find(a => /android/i.test(a.name) && /\.apk$/i.test(a.name));
     const htmlUrl = rel.html_url || ('https://github.com/' + this.REPO + '/releases');
     const body = rel.body ? String(rel.body).slice(0, 500) : '';
 
@@ -106,14 +105,8 @@ const Updater = {
     modal.classList.add('show');
 
     document.getElementById('updateGoBtn').onclick = () => {
-      if (Api.isAndroid && apk) {
-        // 安卓：跳转下载链接，系统下载管理器接管，下载完点开 APK 安装
-        Common.toast('开始下载新版本，完成后打开安装', 4000);
-        location.href = apk.browser_download_url;
-      } else {
-        // 电脑版/网页：打开发布页下载
-        window.open(htmlUrl, '_blank');
-      }
+      // 电脑版：打开发布页下载最新安装包
+      window.open(htmlUrl, '_blank');
     };
   },
 };

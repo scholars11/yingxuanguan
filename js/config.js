@@ -12,10 +12,6 @@ const Config = {
   // 应用当前版本（与 package.json version 保持一致，用于更新检查）
   APP_VERSION: '1.1.5',
 
-  // 线上代理地址（打包手机/TV 安装包时可被替换；为空表示用当前网站同源地址）
-  // 电脑版软件会自动使用内置服务，无需填写
-  ONLINE_PROXY: '__ONLINE_PROXY__',
-
   // 旧默认源的 URL，用于迁移判断
   OLD_DEFAULT_URL: 'https://api.apibdzy.com/api.php/provide/vod/',
 
@@ -149,16 +145,13 @@ const Config = {
   },
 
   // 读取代理服务地址：
-  // 用户手动设置 > 打包内置的线上地址 > 空（同源，电脑版/网页部署时适用）
+  // 用户手动设置 > 空（同源，电脑版/网页部署时适用）
   getProxyBase() {
     let v = '';
     try {
       v = (localStorage.getItem(this.PROXY_KEY) || '').trim();
     } catch (e) {}
     if (/^https?:\/\//.test(v)) return v.replace(/\/+$/, '');
-    if (/^https?:\/\//.test(this.ONLINE_PROXY || '')) {
-      return this.ONLINE_PROXY.replace(/\/+$/, '');
-    }
     return '';
   },
 

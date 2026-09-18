@@ -1,8 +1,7 @@
 /*
- * app-shell.js - 三端公共外壳逻辑
- * 1. 注册 Service Worker（PWA 离线打开界面）
- * 2. TV / 键盘方向键空间导航（Android TV 遥控器、电脑键盘）
- * 3. 安卓 App 首次启动且未配置服务器时的引导
+ * app-shell.js - 电脑版公共外壳逻辑
+ * 1. 注册 Service Worker（离线可打开界面）
+ * 2. 键盘方向键空间导航（方向键选择、Enter 确认）
  */
 
 (function () {
@@ -12,12 +11,12 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js').catch(() => {
-        // 部分内置 WebView 不支持，静默忽略
+        // 部分浏览器不支持，静默忽略
       });
     });
   }
 
-  /* ---------- 2. TV 遥控器 / 键盘空间导航 ---------- */
+  /* ---------- 2. 键盘方向键空间导航 ---------- */
   const FOCUS_SELECTOR = [
     'a[href]',
     'button:not([disabled])',
@@ -99,12 +98,12 @@
     return false;
   }
 
-  let tvNavBound = false;
-  function enableTvNav() {
-    if (tvNavBound) return;
-    tvNavBound = true;
+  let navBound = false;
+  function enableKeyNav() {
+    if (navBound) return;
+    navBound = true;
 
-    // 焦点高亮样式（挂到 head 末尾以生效并获得较高优先级）
+    // 焦点高亮样式
     const style = document.createElement('style');
     style.textContent =
       '.video-card:focus,.category-chip:focus,.episode-item:focus,.source-item:focus,' +
@@ -140,202 +139,12 @@
     });
   }
 
-  // Android TV / 键盘设备立即启用；触屏手机启用也无害（仅响应物理按键）
-  enableTvNav();
+  // 电脑版启用键盘方向键导航
+  enableKeyNav();
   // 列表为动态渲染，每次 DOM 变化补挂 tabindex
   new MutationObserver(() => ensureFocusable()).observe(document.documentElement, {
     childList: true,
     subtree: true,
   });
   ensureFocusable();
-
-  /* ---------- 3. 安卓 App 原生 HTTP 绕过 CORS ---------- */
-  // 安卓 Capacitor WebView 受 CORS 限制，但原生 HTTP 插件没有
-  // 这里 monkey-patch fetch 和 XMLHttpRequest 让所有请求（含 hls.js 的 m3u8）都走原生层
-  // 注意：Capacitor 5+ 内置插件名为 CapacitorHttp（旧版社区插件为 Http）
-  function getHttpPlugin() {
-    const C = window.Capacitor;
-    return (C && C.Plugins && (C.Plugins.CapacitorHttp || C.Plugins.Http)) ||
-           window.CapacitorHttp || null;
-  }
-
-  function base64ToArrayBuffer(b64) {
-    const bin = atob(b64);
-    const len = bin.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
-    return bytes.buffer;
-  }
-
-  function setupAndroidNativeHttp() {
-    const HttpPlugin = getHttpPlugin();
-    if (!HttpPlugin || typeof HttpPlugin.get !== 'function') return false;
-
-    const NATIVE_OPTS = { connectTimeout: 15000, readTimeout: 30000 };
-
-    // --- Patch fetch ---
-    const _origFetch = window.fetch.bind(window);
-    window.fetch = async function (input, init = {}) {
-      const url = typeof input === 'string' ? input : input.url;
-      // 仅接管绝对 http(s) 地址；data:/blob:/相对路径交还原生 fetch
-      if (!url || !/^https?:\/\//.test(url)) {
-        return _origFetch(input, init);
-      }
-      try {
-        const res = await HttpPlugin.get({
-          url: url,
-          headers: init.headers || {},
-          params: {},
-          ...NATIVE_OPTS,
-        });
-        // CapacitorHttp 对 application/json 响应会自动解析成对象，
-        // Response 构造器会把对象转成 "[object Object]" 导致 res.json() 失败，
-        // 必须还原为 JSON 字符串；同时处理 null/undefined 等边界情况
-        let body = res.data;
-        if (typeof body !== 'string') {
-          try { body = body == null ? '' : JSON.stringify(body); }
-          catch (e) { body = String(body || ''); }
-        }
-        return new Response(body, {
-          status: res.status || 200,
-          statusText: '',
-          headers: res.headers || {},
-        });
-      } catch (e) {
-        return _origFetch(input, init); // 降级
-      }
-    };
-
-    // --- Patch XMLHttpRequest (hls.js 默认用 XHR) ---
-    const _origXHROpen = XMLHttpRequest.prototype.open;
-    const _origXHRSend = XMLHttpRequest.prototype.send;
-    const _origXHRSetHeader = XMLHttpRequest.prototype.setRequestHeader;
-
-    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-      this.__nativeUrl = url;
-      this.__nativeMethod = String(method || 'GET').toUpperCase();
-      this.__nativeHeaders = {};
-      return _origXHROpen.call(this, method, url, ...rest);
-    };
-
-    XMLHttpRequest.prototype.setRequestHeader = function (key, val) {
-      this.__nativeHeaders = this.__nativeHeaders || {};
-      this.__nativeHeaders[key] = val;
-      return _origXHRSetHeader.call(this, key, val);
-    };
-
-    // hls.js 超时/切换时会 abort 请求：标记后，未完成的原生请求不再触发任何回调，
-    // 避免重复加载与错误状态错乱
-    const _origXHRAbort = XMLHttpRequest.prototype.abort;
-    XMLHttpRequest.prototype.abort = function () {
-      this.__aborted = true;
-      return _origXHRAbort.call(this);
-    };
-
-    XMLHttpRequest.prototype.send = function () {
-      const url = this.__nativeUrl;
-      // 仅接管 http(s) 的 GET 请求，其余（相对路径/非GET/data:）走原生 XHR
-      const ok = url && /^https?:\/\//.test(url) && this.__nativeMethod === 'GET' &&
-                 this.readyState > 0;
-      if (!ok) {
-        return _origXHRSend.apply(this, arguments);
-      }
-      const headers = this.__nativeHeaders || {};
-      const self = this;
-      const wantAb = this.responseType === 'arraybuffer';
-      // readyState 是只读属性，严格模式下直接赋值会抛错，必须用 defineProperty
-      const done = () => {
-        if (self.__aborted) return;
-        Object.defineProperty(self, 'readyState', { value: 4, configurable: true });
-        self.dispatchEvent(new Event('readystatechange'));
-        self.dispatchEvent(new Event('load'));
-        self.dispatchEvent(new Event('loadend'));
-      };
-      HttpPlugin.get({
-        url,
-        headers,
-        params: {},
-        // Capacitor 7 要求 responseType 为小写：'arraybuffer' | 'text' | 'json' | ...
-        // 大写（如 ARRAY_BUFFER）不被识别，会退化成默认文本模式，导致二进制分片数据损坏
-        responseType: wantAb ? 'arraybuffer' : 'text',
-        ...NATIVE_OPTS,
-      })
-        .then((res) => {
-          if (self.__aborted) return;
-          let data = res.data;
-          // 同 fetch：JSON 响应可能被原生层解析成对象，还原为字符串
-          if (typeof data !== 'string') {
-            try { data = data == null ? '' : JSON.stringify(data); }
-            catch (e) { data = String(data || ''); }
-          }
-          if (wantAb) {
-            data = base64ToArrayBuffer(typeof data === 'string' ? data : '');
-            Object.defineProperty(self, 'response', { value: data, configurable: true });
-          } else {
-            Object.defineProperty(self, 'responseText', { value: String(data), configurable: true });
-            Object.defineProperty(self, 'response', { value: String(data), configurable: true });
-          }
-          Object.defineProperty(self, 'status', { value: res.status, configurable: true });
-          done();
-        })
-        .catch(() => {
-          if (self.__aborted) return;
-          self.dispatchEvent(new Event('error'));
-          self.dispatchEvent(new Event('loadend'));
-          try {
-            Object.defineProperty(self, 'readyState', { value: 4, configurable: true });
-          } catch (e) {}
-        });
-    };
-
-    return true;
-  }
-
-  /* ---------- 4. 安卓 App 首次启动引导 ---------- */
-  // 立即打补丁，不等 window load：
-  // 首页在 DOMContentLoaded 就发起数据请求（早于 load），
-  // 若等 load 再打补丁，首屏请求会因 CORS 失败（表现为"刚打开加载失败，重试才成功"）
-  const nativeReady = setupAndroidNativeHttp();
-  if (nativeReady) {
-    console.log('[影序馆] 安卓原生 HTTP 已启用，所有请求绕过 CORS');
-  }
-
-  /* ---------- 5. 安卓硬件返回键拦截 ---------- */
-  // 不拦截的话，按手机返回键会直接退出 App，而不是回退页面
-  function setupBackButton() {
-    const C = window.Capacitor;
-    const App = C && C.Plugins && (C.Plugins.App || C.Plugins.CapacitorApp);
-    if (!App || typeof App.addListener !== 'function') return false;
-
-    App.addListener('backButton', ({ canGoBack }) => {
-      // 优先：如果有浏览器历史，先回退页面
-      if (window.history.length > 1) {
-        window.history.back();
-        return;
-      }
-      // 在首页/无历史可回退时：最小化 App 而不是退出
-      // 移动到后台，用户可以从最近任务列表恢复
-      if (App.minimizeApp && typeof App.minimizeApp === 'function') {
-        App.minimizeApp();
-      } else if (App.exitApp && typeof App.exitApp === 'function') {
-        App.exitApp();
-      }
-    });
-    return true;
-  }
-
-  // 延迟绑定，确保 Capacitor Plugins 已注册
-  setTimeout(() => {
-    const ok = setupBackButton();
-    if (ok) console.log('[影序馆] 硬件返回键已拦截：回退页面或最小化 App');
-  }, 500);
-
-  window.addEventListener('load', () => {
-    if (window.Api && window.Api.isAndroid) return;
-    try {
-      if (localStorage.getItem('yxg_proxy_guided')) return;
-      localStorage.setItem('yxg_proxy_guided', '1');
-      // 安卓环境不再需要配置服务器地址（原生 HTTP 直连），不弹提示
-    } catch (e) {}
-  });
 })();

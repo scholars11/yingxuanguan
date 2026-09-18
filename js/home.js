@@ -350,7 +350,7 @@ const Home = {
     const settings = Config.getSettings();
     if (!settings.postersEnabled) return;
 
-    // 批量请求，每批 10 个（并发过大在手机网络下拥塞明显，反而更慢）
+    // 批量请求，每批 10 个（并发过大容易拥塞，反而更慢）
     const batchSize = 10;
     for (let i = 0; i < list.length; i += batchSize) {
       const batch = list.slice(i, i + batchSize);

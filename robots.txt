@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://scholars11.github.io/yingxuanguan/sitemap.xml

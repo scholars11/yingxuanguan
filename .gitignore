@@ -9,15 +9,6 @@ dist-release/
 # 下载的安装包
 downloads/
 
-# Capacitor 生成的安卓原生工程（CI 中自动生成）
-android/
-
-# 网页资源打包目录（由 scripts/prepare-www.js 生成）
-www/
-
-# Capacitor 图标资源（由 scripts/gen-icons.js 生成）
-assets/
-
 # 日志与系统文件
 *.log
 .DS_Store

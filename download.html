@@ -2,9 +2,56 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=10">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0f1115">
-  <title>下载影序馆 - Windows / Android 手机 / Android TV / iPhone</title>
+  <title>下载影序馆 - Windows 电脑版安装包 | 多源影视聚合播放器</title>
+  <meta name="description" content="影序馆 Windows 电脑版下载：免费的多源影视聚合播放器，内置代理绕过跨域限制，支持安装版与绿色免安装版，64 位 Win10 及以上系统可用，一个账号都不用注册。">
+  <meta name="keywords" content="影序馆,影序馆下载,影序馆 Windows,影序馆安装包,影序馆电脑版,影视聚合播放器,免费影视软件,多源影视搜索,Windows影视播放器">
+  <meta name="author" content="影序馆">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://scholars11.github.io/yingxuanguan/download.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="影序馆">
+  <meta property="og:title" content="下载影序馆 - Windows 电脑版安装包">
+  <meta property="og:description" content="影序馆 Windows 电脑版：免费多源影视聚合播放器，内置代理，安装版与绿色版可选，64 位 Win10 及以上。">
+  <meta property="og:url" content="https://scholars11.github.io/yingxuanguan/download.html">
+  <meta property="og:image" content="https://scholars11.github.io/yingxuanguan/icons/icon-512.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="下载影序馆 - Windows 电脑版安装包">
+  <meta name="twitter:description" content="影序馆 Windows 电脑版：免费多源影视聚合播放器。">
+  <meta name="twitter:image" content="https://scholars11.github.io/yingxuanguan/icons/icon-512.png">
+
+  <!-- 结构化数据：SoftwareApplication，帮助搜索引擎识别为软件下载页 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "影序馆",
+    "alternateName": "YingXuanGuan",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Windows 10, Windows 11 (64-bit)",
+    "description": "影序馆是一款免费的多源影视聚合播放器，内置本地代理服务绕过跨域限制，无需注册即可搜索和播放多个影视资源站的内容。",
+    "url": "https://scholars11.github.io/yingxuanguan/download.html",
+    "downloadUrl": "https://github.com/scholars11/yingxuanguan/releases/latest",
+    "softwareVersion": "1.1.5",
+    "fileSize": "约 80 MB",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CNY"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "1"
+    }
+  }
+  </script>
+
   <style>
     :root {
       --bg: #0f1115;
@@ -25,7 +72,7 @@
       line-height: 1.6;
       min-height: 100vh;
     }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 32px 18px 60px; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 32px 18px 60px; }
     .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; }
     .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 18px; }
     .brand .logo {
@@ -42,7 +89,7 @@
     .release-meta { margin-top: 12px; font-size: 13px; color: var(--mute); min-height: 20px; }
     .release-meta .ok { color: var(--gold); }
 
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+    .cards { display: flex; flex-direction: column; gap: 18px; }
     .card {
       background: var(--card); border: 1px solid var(--border); border-radius: 16px;
       padding: 26px 22px; display: flex; flex-direction: column;
@@ -87,7 +134,7 @@
 
     <div class="hero">
       <h1>下载<em>影序馆</em></h1>
-      <p>一个账号都不用注册 · 支持 Windows 电脑 / Android 手机 / Android 电视 / iPhone</p>
+      <p>一个账号都不用注册 · Windows 电脑版，内置代理，开箱即用</p>
       <div class="release-meta" id="releaseMeta">正在检查最新版本…</div>
     </div>
 
@@ -96,58 +143,37 @@
       <div class="card">
         <div class="platform-icon">💻</div>
         <h2>Windows 电脑版</h2>
-        <div class="sub">安装版可自选目录、创建快捷方式；绿色版解压即用。均为 64 位，Win10 及以上。</div>
+        <div class="sub">安装版可自选目录、创建桌面与开始菜单快捷方式；绿色版解压即用，无需安装。均为 64 位，支持 Win10 及以上系统。</div>
         <div class="btns">
           <a class="btn btn-primary disabled" id="winSetup" href="#" rel="noopener">下载安装版<small>Setup .exe</small></a>
           <a class="btn btn-ghost disabled" id="winPortable" href="#" rel="noopener">下载绿色免安装版<small>Portable .exe</small></a>
         </div>
       </div>
-
-      <!-- Android 手机 + TV -->
-      <div class="card">
-        <div class="platform-icon">📺</div>
-        <h2>安卓手机 / 电视</h2>
-        <div class="sub">同一个 APK 同时支持安卓手机与 Android TV（已适配遥控器方向键）。Android 7.0 及以上。</div>
-        <div class="btns">
-          <a class="btn btn-primary disabled" id="androidApk" href="#" rel="noopener">下载 APK 安装包<small>手机 / TV 通用</small></a>
-        </div>
-      </div>
-
-      <!-- iPhone -->
-      <div class="card">
-        <div class="platform-icon">📱</div>
-        <h2>iPhone / iPad</h2>
-        <div class="sub">iOS 受系统限制无法安装独立安装包，用 Safari 打开网站后「添加到主屏幕」即可像 App 一样全屏使用。</div>
-        <div class="btns">
-          <a class="btn btn-ghost" href="./index.html">打开网页版<small>Safari → 分享 → 添加到主屏幕</small></a>
-        </div>
-      </div>
     </div>
 
     <div class="faq">
-      <h3>安卓手机如何安装 APK？</h3>
+      <h3>安装后怎么使用？</h3>
       <ul>
-        <li>下载 APK 后点击安装，按提示允许浏览器 / 文件管理器「安装未知应用」即可。</li>
-        <li>首次打开请点右上角 ⚙ 设置，在「服务器地址」填入已部署的服务地址（电脑版无需填写，已内置）。</li>
+        <li>打开影序馆后，右上角 ⚙ 可管理数据源（已内置多个默认源，直接可用）。</li>
+        <li>在首页搜索框输入影视名称，或浏览分类，点击卡片即可查看详情并播放。</li>
+        <li>软件内置本地代理服务，自动绕过跨域限制，无需额外配置服务器地址。</li>
       </ul>
 
-      <h3>Android TV 如何安装？</h3>
+      <h3>安装版和绿色版有什么区别？</h3>
       <ul>
-        <li>方式一：把 APK 拷到 U 盘，用电视自带的「文件管理 / 媒体中心」打开安装（需在设置中允许未知来源）。</li>
-        <li>方式二：电视开启「开发者选项 - USB 调试」，用 adb 安装：<code>adb install YingXuanGuan-Android-PhoneTV.apk</code></li>
-        <li>安装后在电视桌面「应用」行找到影序馆，遥控器方向键选择、确认键播放。</li>
+        <li><strong>安装版（Setup）</strong>：向导式安装，可自选安装目录，自动创建桌面和开始菜单快捷方式，适合普通用户。</li>
+        <li><strong>绿色版（Portable）</strong>：单文件 exe，解压即可运行，不写入注册表，适合放在 U 盘随身携带。</li>
       </ul>
 
-      <h3>手机/TV 版为什么要填「服务器地址」？</h3>
-      <p>影序馆的影视数据来自第三方资源站，网页版靠本机的代理服务绕过跨域限制；电脑版软件内置了该服务，
-        而手机/电视无法内置运行，需要一个部署在公网的同名服务（项目里的 <code>server.js</code>，可免费部署到 Render 等平台）。
-        部署后把形如 <code>https://你的服务名.onrender.com</code> 的地址填入即可。</p>
+      <h3>下载被浏览器拦截怎么办？</h3>
+      <p>由于安装包未经过数字签名，部分浏览器或安全软件可能会提示风险。
+        点击「保留」或「仍要运行」即可；如有疑虑，可查看 GitHub 仓库源码自行构建。</p>
 
       <h3>安全与免责</h3>
       <p>本软件不存储、不上传任何影视资源，所有数据均来自用户自行配置的公开数据源，请仅在拥有合法访问权限时使用。</p>
     </div>
 
-    <footer>影序馆 · 多源影视聚合</footer>
+    <footer>影序馆 · 多源影视聚合 · Windows 电脑版</footer>
   </div>
 
   <script>
@@ -165,11 +191,10 @@
 
     function markUnpublished(reason) {
       meta.innerHTML = '当前版本：<span>安装包暂未发布</span>';
-      ['winSetup', 'winPortable', 'androidApk'].forEach((id) => setDisabled(id, true));
+      ['winSetup', 'winPortable'].forEach((id) => setDisabled(id, true));
       const labels = {
         winSetup: '暂未发布（Setup）',
         winPortable: '暂未发布（免安装版）',
-        androidApk: '暂未发布（APK）',
       };
       Object.keys(labels).forEach((id) => {
         const el = document.getElementById(id);
@@ -196,17 +221,15 @@
 
       const setup = find(/Setup.*\.exe$/i);
       const portable = find(/Portable.*\.exe$/i);
-      const apk = find(/\.apk$/i);
 
       if (setup) { setDisabled('winSetup', false); document.getElementById('winSetup').href = setup.browser_download_url; }
       if (portable) { setDisabled('winPortable', false); document.getElementById('winPortable').href = portable.browser_download_url; }
-      if (apk) { setDisabled('androidApk', false); document.getElementById('androidApk').href = apk.browser_download_url; }
 
       const date = data.published_at ? new Date(data.published_at).toLocaleDateString('zh-CN') : '';
       meta.innerHTML = '最新版本：<span class="ok">' + (data.tag_name || '') + '</span>' + (date ? '　发布日期：' + date : '');
 
-      if (!setup || !portable || !apk) {
-        meta.innerHTML += '　（部分平台产物仍在构建中，稍后刷新）';
+      if (!setup || !portable) {
+        meta.innerHTML += '　（部分产物仍在构建中，稍后刷新）';
       }
     }
 

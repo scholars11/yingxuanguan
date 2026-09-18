@@ -1,10 +1,9 @@
 /*
  * gen-icons.js - 无第三方依赖生成应用图标（PNG）
  * 产出：
- *   icons/icon-192.png            手机/PWA
- *   icons/icon-512.png            PWA/Windows 图标源
- *   icons/icon-maskable-512.png   安卓自适应图标（图形充满安全区）
- *   icons/tv-banner-320x180.png   Android TV 横幅
+ *   icons/icon-192.png            PWA / 网页图标
+ *   icons/icon-512.png            Windows 图标源
+ *   icons/icon-maskable-512.png   自适应图标
  * 运行：node scripts/gen-icons.js
  */
 
@@ -163,60 +162,17 @@ function appIcon(size, { maskable = false } = {}) {
   return encodePNG(size, size, cv.buf);
 }
 
-// TV 横幅 320x180：左侧播放键，右侧留品牌区（纯图形，无字体依赖）
-function tvBanner() {
-  const w = 320, h = 180;
-  const cv = makeCanvas(w, h);
-  fill(cv, BG[0], BG[1], BG[2]);
-  roundRect(cv, 0, 0, w, h, 0, BG[0], BG[1], BG[2]);
-  // 左侧圆形徽标：金色圆环 + 深色内圆
-  const ccx = 58, ccy = 90, rad = 38, inner = 32;
-  for (let y = ccy - rad; y < ccy + rad; y++) {
-    for (let x = ccx - rad; x < ccx + rad; x++) {
-      const dx = x - ccx, dy = y - ccy;
-      const d2 = dx * dx + dy * dy;
-      if (d2 <= rad * rad && d2 > inner * inner) {
-        setPx(cv, x, y, GOLD[0], GOLD[1], GOLD[2], 255);
-      } else if (d2 <= inner * inner) {
-        setPx(cv, x, y, CARD[0], CARD[1], CARD[2], 255);
-      }
-    }
-  }
-  playTriangle(cv, ccx + 4, ccy, 30, GOLD[0], GOLD[1], GOLD[2]);
-  // 右侧三条横杠暗示"影序"列表
-  for (let i = 0; i < 3; i++) {
-    const y = 66 + i * 26;
-    roundRect(cv, 120, y, 280 - i * 24, y + 8, 4, GLOW[0], GLOW[1], GLOW[2], i === 0 ? 230 : 150);
-  }
-  return encodePNG(w, h, cv.buf);
-}
-
-// 启动屏：满版深色底 + 居中播放键
-function splash(size) {
-  const cv = makeCanvas(size, size);
-  fill(cv, BG[0], BG[1], BG[2]);
-  playTriangle(cv, size * 0.52, size * 0.5, size * 0.3, GOLD[0], GOLD[1], GOLD[2]);
-  return encodePNG(size, size, cv.buf);
-}
-
 // ---------- 输出 ----------
 const outDir = path.join(__dirname, '..', 'icons');
-const assetsDir = path.join(__dirname, '..', 'assets');
 fs.mkdirSync(outDir, { recursive: true });
-fs.mkdirSync(assetsDir, { recursive: true });
 const files = {
   'icon-192.png': appIcon(192),
   'icon-512.png': appIcon(512),
   'icon-1024.png': appIcon(1024),
   'icon-maskable-512.png': appIcon(512, { maskable: true }),
   'icon-maskable-1024.png': appIcon(1024, { maskable: true }),
-  'tv-banner-320x180.png': tvBanner(),
 };
 for (const [name, buf] of Object.entries(files)) {
   fs.writeFileSync(path.join(outDir, name), buf);
   console.log('生成 icons/' + name + ' (' + buf.length + ' 字节)');
 }
-// Capacitor 资源（@capacitor/assets 约定：满版 1024 图标 + 启动屏）
-fs.writeFileSync(path.join(assetsDir, 'icon.png'), files['icon-maskable-1024.png']);
-fs.writeFileSync(path.join(assetsDir, 'splash.png'), splash(1024));
-console.log('生成 assets/icon.png、assets/splash.png');

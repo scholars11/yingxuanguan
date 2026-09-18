@@ -1,7 +1,7 @@
 {
   "name": "yingxuanguan",
   "version": "1.1.5",
-  "description": "影序馆 - 多源影视聚合（Windows / Android 手机 / Android TV）",
+  "description": "影序馆 - 多源影视聚合（Windows 电脑版）",
   "main": "electron-main.js",
   "private": true,
   "license": "MIT",
@@ -10,17 +10,9 @@
     "app": "electron .",
     "app:smoke": "electron . --smoke",
     "dist:win": "electron-builder --win",
-    "gen:icons": "node scripts/gen-icons.js",
-    "www": "node scripts/prepare-www.js",
-    "cap:add": "cap add android",
-    "cap:sync": "cap sync android",
-    "cap:tv": "node scripts/setup-android-tv.js",
-    "build:apk": "npm run www && cap sync android && npm run cap:tv"
+    "gen:icons": "node scripts/gen-icons.js"
   },
   "devDependencies": {
-    "@capacitor/android": "^7.0.0",
-    "@capacitor/cli": "^7.0.0",
-    "@capacitor/core": "^7.0.0",
     "electron": "^44.4.1",
     "electron-builder": "^26.15.3"
   },
@@ -75,7 +67,5 @@
       "artifactName": "YingXuanGuan-Windows-Portable-${version}.${ext}"
     }
   },
-  "dependencies": {
-    "@capacitor-community/http": "^1.4.1"
-  }
+  "dependencies": {}
 }

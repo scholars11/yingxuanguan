@@ -23,13 +23,13 @@ const SourceManager = {
             <button class="btn" onclick="Updater.check(true)">检查更新</button>
           </div>
           <div style="margin:12px 0;padding:10px;border:1px solid var(--c-border,#2a2e36);border-radius:8px;background:rgba(255,255,255,0.02);">
-            <label style="display:block;font-size:13px;margin-bottom:6px;">服务器地址（手机 / TV 版填写，电脑版留空）</label>
+            <label style="display:block;font-size:13px;margin-bottom:6px;">自定义代理地址（可选，电脑版无需填写）</label>
             <div style="display:flex;gap:8px;">
-              <input type="text" id="proxyBaseInput" placeholder="如：https://yingxuanguan.onrender.com"
+              <input type="text" id="proxyBaseInput" placeholder="如：https://your-proxy.com"
                      style="flex:1;min-width:0;background:#16181d;border:1px solid var(--c-border,#2a2e36);border-radius:6px;color:inherit;padding:7px 10px;font-size:13px;">
               <button class="btn btn-sm btn-primary" onclick="SourceManager.saveProxy()">保存</button>
             </div>
-            <small style="display:block;margin-top:6px;color:var(--c-text-mute,#8a8f99);">手机和电视无法运行内置代理，需填写已部署的公网服务地址；留空则使用当前网站地址。</small>
+            <small style="display:block;margin-top:6px;color:var(--c-text-mute,#8a8f99);">电脑版已内置本地代理，留空即可；仅在网页部署且需要自定义代理服务时填写。</small>
           </div>
           <div id="sourceList" class="source-list"></div>
         </div>
